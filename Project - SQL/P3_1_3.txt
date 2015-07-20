@@ -1,0 +1,100 @@
+db2 => update command options using z on P3_1_3.txt
+DB20000I  The UPDATE COMMAND OPTIONS command completed successfully.
+
+a) select w.dramatist_no as d_no, a_d.a_no, d.dramatist_name as d_name, a.a_name, w.play_no, cast(p.p_title as varchar(14)) as p_title from writes w, dramatist d, actor_dram a_d, play p, actor_born_lives a where w.dramatist_no = d.dramatist_no AND a_d.dramatist_no=d.dramatist_no AND w.play_no = p.p_no AND a_d.a_no = a.a_no
+
+D_NO        A_NO        D_NAME          A_NAME                    PLAY_NO     P_TITLE       
+----------- ----------- --------------- ------------------------- ----------- --------------
+          4           2 sp_Drmst_4      SP_actor_2                          6 SP_Tragedy_6  
+
+  1 record(s) selected.
+
+b) select t.tComp_no, cast(t.tComp_name as varchar(10)) as tComp_name, t.tComp_place, h.hire_year, a.a_no, cast(a.a_name as varchar(10)) as a_name, a.a_l_place from hired h, actor_born_lives a, theater_comp_place t where h.tComp_no = t.tComp_no AND h.a_no = a.a_no order by t.tComp_no, a.a_name
+
+TCOMP_NO    TCOMP_NAME TCOMP_PLACE HIRE_YEAR A_NO        A_NAME     A_L_PLACE  
+----------- ---------- ----------- --------- ----------- ---------- -----------
+          1 SP_Comp_1            1      2000           1 SP_actor_1           1
+          2 SP_Comp_2            5      1998           1 SP_actor_1           1
+          2 SP_Comp_2            5      1997           2 SP_actor_2           5
+          2 SP_Comp_2            5      1997           3 SP_actor_3           2
+          2 SP_Comp_2            5      1997           5 SP_actor_5           4
+          2 SP_Comp_2            5      1997           7 SP_actor_7           5
+          4 SP_Comp_4            5      2010           4 SP_actor_4           4
+          4 SP_Comp_4            5      2012           4 SP_actor_4           4
+          5 SP_Comp_5            1      2005           6 SP_actor_6           4
+
+  9 record(s) selected.
+
+c) with c as (select count(*) nr_comedies from Comedy), d as (select count(*) nr_dramas from drama), t as (select count(*) nr_tragedies from Tragedy) select nr_comedies, nr_dramas, nr_tragedies from c, d, t
+
+NR_COMEDIES NR_DRAMAS    NR_TRAGEDIES
+----------- ----------- ------------
+          1           3            2
+
+  1 record(s) selected.
+
+d) select p_no, cast(p_title as varchar(15)) as p_title, p_year, type from play, (select c_type as type, c_p_no as num from Comedy UNION select d_type as type, d_p_no as num from drama UNION select t_type as type, t_p_no as num from Tragedy) as combined where combined.num = p_no order by p_year
+
+P_NO        P_TITLE         P_YEAR TYPE                
+----------- --------------- ------ --------------------
+          5 SP_Tragedy_5      1800 Roman               
+          2 SP_PLAY_2         1850 modern               
+          3 SP_PLAY_3         1900 renaissance         
+          4 SP_Comedy_4       1900 farce               
+          1 SP_PLAY_1         1990 medieval            
+          6 SP_Tragedy_6      2000 greek               
+
+  6 record(s) selected.
+
+e) select a_no, cast(a_name as varchar(12)) as a_name, a_born, cast(p1.place_town as varchar(12)) as “BORN_IN:”, cast(p2.place_town as varchar(12)) as “LIVES_IN:” from actor_born_lives a LEFT OUTER JOIN place p1 ON p1.place_no = a.a_b_place LEFT OUTER JOIN place p2 ON a.a_l_place = p2.place_no order by a_no
+
+A_NO        A_NAME       A_BORN     BORN_IN:     LIVES_IN:   
+----------- ------------ ---------- ------------ ------------
+          1 SP_actor_1   05/12/1980 TORONTO      TORONTO     
+          2 SP_actor_2   05/03/1977 TORONTO      PARIS       
+          3 SP_actor_3   05/11/1965 Mississauga  Mississauga 
+          4 SP_actor_4   05/09/1970 HAMILTON     NEW YORK    
+          5 SP_actor_5   02/20/1956 PARIS        NEW YORK    
+          6 SP_actor_6   05/03/1940 TORONTO      NEW YORK    
+          7 SP_actor_7   07/11/1941 NEW YORK     PARIS       
+          8 SP_actor_8   05/12/1980 NEW YORK     TORONTO     
+
+  8 record(s) selected.
+
+f) select perf_no, cast(a_name as varchar(12)) as a_name, cast(tComp_name as varchar(15)) as tComp_name, cast(p_title as varchar(15)) as p_title, pdate from theater_comp_place t, actor_born_lives a, play p, performs perf where p.p_no = perf.play_no AND a.a_no = perf.perf_no AND perf.tComp_no = t.tComp_no order by perf_no
+
+PERF_NO     A_NAME       TCOMP_NAME      P_TITLE         PDATE     
+----------- ------------ --------------- --------------- ----------
+          3 SP_actor_3   SP_Comp_1       SP_PLAY_1       01/01/2003
+          3 SP_actor_3   SP_Comp_2       SP_PLAY_1       01/01/2003
+          4 SP_actor_4   SP_Comp_4       SP_PLAY_2       01/01/1998
+          4 SP_actor_4   SP_Comp_4       SP_PLAY_2       01/01/2011
+          5 SP_actor_5   SP_Comp_5       SP_Tragedy_5    01/01/2006
+
+  5 record(s) selected.
+
+g) select p_no, cast(p_title as varchar(15)) as p_title, p_year, type from play, (select c_type as type, c_p_no as num from Comedy UNION select d_type as type, d_p_no as num from drama UNION select t_type as type, t_p_no as num from Tragedy) as combine where p_year >= 1900 AND p_no = combine.num
+
+P_NO        P_TITLE         P_YEAR TYPE                
+----------- --------------- ------ --------------------
+          1 SP_PLAY_1         1990 medieval            
+          3 SP_PLAY_3         1900 renaissance         
+          4 SP_Comedy_4       1900 farce               
+          6 SP_Tragedy_6      2000 greek               
+
+  4 record(s) selected.
+
+h) select t.tComp_name, a.a_name, t_d.hasdate as “Start:” from th_has_dir t_d, actor_born_lives a, theater_comp_place t where t_d.tComp_no = t.tComp_no AND a.a_no = t_d.td_no order by tcomp_name
+
+TCOMP_NAME                     A_NAME                    Start:     
+------------------------------ ------------------------- ----------
+SP_Comp_1                      SP_actor_2                01/01/2000
+SP_Comp_1                      SP_actor_2                01/01/2006
+SP_Comp_4                      SP_actor_1                01/01/2011
+SP_Comp_4                      SP_actor_1                01/01/2014
+SP_Comp_5                      SP_actor_1                01/01/2005
+
+  5 record(s) selected.
+
+db2 => commit
+DB20000I  The SQL command completed successfully.
